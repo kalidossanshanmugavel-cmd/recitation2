@@ -864,10 +864,25 @@ COURSES = [{'slug': 'python',
 
 def seed_database(db: Session):
     # Idempotent seed: existing rows are reused, so --reload does not duplicate data.
-    if not db.query(User).filter(User.email == "student@example.com").first():
-        db.add(User(name="Demo Student", email="student@example.com",
-                    password_hash=hash_password("Student@123")))
-        db.commit()
+    seed_users = [
+        {"name": "Demo Student", "email": "student@example.com", "password": "Student@123", "role": "student"},
+        {"name": "Demo Trainer", "email": "trainer@example.com", "password": "Trainer@123", "role": "trainer"},
+        {"name": "Demo Admin", "email": "admin@example.com", "password": "Admin@123", "role": "admin"},
+    ]
+
+    for item in seed_users:
+        user = db.query(User).filter(User.email == item["email"]).first()
+        if not user:
+            db.add(User(
+                name=item["name"],
+                email=item["email"],
+                password_hash=hash_password(item["password"]),
+                role=item["role"],
+            ))
+        else:
+            # Keep existing demo users aligned with the RBAC test fixtures.
+            user.role = item["role"]
+    db.commit()
 
     for item in COURSES:
         course = db.query(Course).filter(Course.slug == item["slug"]).first()

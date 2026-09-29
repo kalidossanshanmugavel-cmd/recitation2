@@ -10,7 +10,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 def public_user(user: User):
-    return {"id": user.id, "name": user.name, "email": user.email}
+    return {"id": user.id, "name": user.name, "email": user.email, "role": user.role}
 
 
 @router.post("/register", status_code=201)
@@ -19,7 +19,7 @@ def register(data: RegisterRequest, response: Response, db: Session = Depends(ge
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(status_code=409, detail="Email already registered")
 
-    user = User(name=data.name.strip(), email=email, password_hash=hash_password(data.password))
+    user = User(name=data.name.strip(), email=email, password_hash=hash_password(data.password), role="student")
     db.add(user)
     db.commit()
     db.refresh(user)

@@ -8,6 +8,7 @@ class User(Base):
     name = Column(String(100), nullable=False)
     email = Column(String(200), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
+    role = Column(String(30), nullable=False, default="student")
     attempts = relationship("Attempt", back_populates="user")
 
 class Course(Base):

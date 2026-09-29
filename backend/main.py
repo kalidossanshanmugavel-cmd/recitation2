@@ -4,13 +4,25 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, SessionLocal, engine
+from sqlalchemy import inspect, text
 from routers import auth, courses, mcq, practice, progress
 from seed import seed_database
 
 
 @asynccontextmanager
+def ensure_user_role_column():
+    # create_all() does not alter an existing SQLite table, so migrate old databases safely.
+    columns = {column["name"] for column in inspect(engine).get_columns("users")}
+    if "role" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text(
+                "ALTER TABLE users ADD COLUMN role VARCHAR(30) NOT NULL DEFAULT 'student'"
+            ))
+
+
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    ensure_user_role_column()
     db = SessionLocal()
     try:
         seed_database(db)
