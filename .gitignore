@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+.env
+
+# Node
+node_modules/
+dist/
+playwright-report/
+test-results/
+
+# IDE / OS
+.vscode/
+.DS_Store
+Thumbs.db
